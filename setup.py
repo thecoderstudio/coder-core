@@ -2,7 +2,10 @@ from setuptools import setup
 
 
 requires = [
+    'bcrypt',
+    'bleach',
     'psycopg2',
+    'marshmallow',
     'sqlalchemy',
     'zope.sqlalchemy'
 ]
