@@ -1,0 +1,7 @@
+README.md
+setup.py
+codercore.egg-info/PKG-INFO
+codercore.egg-info/SOURCES.txt
+codercore.egg-info/dependency_links.txt
+codercore.egg-info/requires.txt
+codercore.egg-info/top_level.txt
