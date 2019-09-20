@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 requires = [
     'bcrypt',
     'bleach',
@@ -11,7 +10,6 @@ requires = [
     'sqlalchemy',
     'zope.sqlalchemy'
 ]
-
 
 setup(
     name='codercore',
