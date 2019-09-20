@@ -5,6 +5,7 @@ requires = [
     'bcrypt',
     'bleach',
     'psycopg2',
+    'pycrypto',
     'marshmallow',
     'sqlalchemy',
     'zope.sqlalchemy'
