@@ -28,4 +28,4 @@ class LoginSchema(Schema):
                 raise ValidationError('')
         except (NoResultFound, ValidationError):
             raise ValidationError("Email address and password don't match",
-                                  ('password',))
+                                  'password')
