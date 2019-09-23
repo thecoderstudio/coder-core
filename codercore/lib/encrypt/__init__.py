@@ -5,6 +5,12 @@ from Crypto.Cipher import AES
 from codercore.lib.encrypt.padding import pad, unpad
 
 
+def hash_plaintext(plaintext):
+    salt = bcrypt.gensalt()
+    return (bcrypt.hashpw(plaintext.encode('utf-8'), salt).decode('utf-8'),
+            salt.decode('utf-8'))
+
+
 def encrypt_string_AES(string_message, key, iv):
     """Encrypts a string using AES and returns the encrypted string."""
     return base64.b64encode(
