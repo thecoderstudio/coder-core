@@ -20,3 +20,7 @@ class User(Base):
 
 def get_user_by_email(email):
     return session.query(User).filter(User.email == email)
+
+
+def get_user_by_id(id_):
+    return session.query(User).get(id_)
