@@ -7,7 +7,7 @@ from codercore.db import Base, DBSession as session
 from codercore.db.type import UUID
 
 
-class UserMixin(Base):
+class User(Base):
     __tablename__ = 'user'
 
     id = Column(UUID, primary_key=True, default=uuid.uuid4)
@@ -19,4 +19,4 @@ class UserMixin(Base):
 
 
 def get_user_by_email(email):
-    return session.query(UserMixin).filter(UserMixin.email == email)
+    return session.query(User).filter(User.email == email)
