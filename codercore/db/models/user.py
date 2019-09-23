@@ -7,7 +7,7 @@ from codercore.db import Base, DBSession as session
 from codercore.db.type import UUID
 
 
-class User(Base):
+class BaseUser(Base):
     __tablename__ = 'user'
 
     id = Column(UUID, primary_key=True, default=uuid.uuid4)
@@ -19,8 +19,8 @@ class User(Base):
 
 
 def get_user_by_email(email):
-    return session.query(User).filter(User.email == email)
+    return session.query(BaseUser).filter(BaseUser.email == email)
 
 
 def get_user_by_id(id_):
-    return session.query(User).get(id_)
+    return session.query(BaseUser).get(id_)
