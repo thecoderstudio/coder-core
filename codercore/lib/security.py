@@ -3,7 +3,7 @@ from pyramid.security import Authenticated, Everyone
 
 
 class DefaultAuthenticationPolicy(AuthTktAuthenticationPolicy):
-    def effective_principlas(self, request):
+    def effective_principals(self, request):
         principals = [Everyone]
         if request.user is not None:
             principals.append('user:{}'.format(request.user.id))

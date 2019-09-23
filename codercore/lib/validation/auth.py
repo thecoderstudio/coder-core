@@ -22,7 +22,7 @@ class LoginSchema(Schema):
     @validates_schema
     def validate_password(self, data, **kwargs):
         try:
-            user = get_user_by_email(data["email"]).one()
+            user = get_user_by_email(data.get('email')).one()
             if not compare_plaintext_to_hash(
                     data['password'], user.password_hash, user.password_salt):
                 raise ValidationError('')
