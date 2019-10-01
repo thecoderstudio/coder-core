@@ -1,6 +1,9 @@
 import base64
 import json
+import logging
 import requests
+
+log = logging.getLogger(__name__)
 
 
 class OAuthClient(object):
@@ -16,7 +19,9 @@ class OAuthClient(object):
 
         response_body = requests.post(
             "{}/oauth/token".format(self.url),
-            data=json.dumps(request_body), headers=headers).json()
+            data=json.dumps(request_body), headers=headers)
+        log.info(response_body)
+        response_body = response_body.json()
 
         access_token = "{} {}".format(
             response_body['token_type'],
