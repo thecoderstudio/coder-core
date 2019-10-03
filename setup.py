@@ -13,7 +13,7 @@ requires = [
 
 setup(
     name='codercore',
-    version='0.1.0',
+    version='1.0.0',
     description='codercore',
     author="Code R",
     author_email='hello@coderstudio.nl',
