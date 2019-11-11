@@ -1,5 +1,8 @@
 import base64
+import binascii
+
 import bcrypt
+from Crypto import Random
 from Crypto.Cipher import AES
 
 from codercore.lib.encrypt.padding import pad, unpad
@@ -47,6 +50,14 @@ def decrypt_AES(bytes_message, key, iv):
 def decrypt_secret(secret, key, iv):
     decoded_secret = base64.b64decode(secret.encode('utf-8'))
     return decrypt_AES(decoded_secret, key, iv).decode('utf-8')
+
+
+def get_small_secure_token():
+    return binascii.b2a_hex(Random.get_random_bytes(3)).decode('utf-8')
+
+
+def get_secure_token():
+    return binascii.b2a_hex(Random.get_random_bytes(32)).decode('utf-8')
 
 
 def compare_plaintext_to_hash(plaintext, hashed_plaintext=None, salt=None):
