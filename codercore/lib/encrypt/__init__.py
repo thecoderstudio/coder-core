@@ -4,6 +4,7 @@ import binascii
 import bcrypt
 from Crypto import Random
 from Crypto.Cipher import AES
+from Crypto.Hash import HMAC, SHA256
 
 from codercore.lib.encrypt.padding import pad, unpad
 
@@ -58,6 +59,10 @@ def get_small_secure_token():
 
 def get_secure_token():
     return binascii.b2a_hex(Random.get_random_bytes(32)).decode('utf-8')
+
+
+def hash_HMAC_hex(message, key):
+    return HMAC.new(key, message, SHA256.new()).hexdigest()
 
 
 def compare_plaintext_to_hash(plaintext, hashed_plaintext=None, salt=None):
