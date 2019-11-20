@@ -3,7 +3,7 @@ import unittest
 
 class TestEncrypt(unittest.TestCase):
     def test_hash_HMAC_hex(self):
-        from invytecore.lib.encrypt import hash_HMAC_hex
+        from codercore.lib.encrypt import hash_HMAC_hex
 
         message_1 = b"teststring1"
         message_2 = b"teststring2"
@@ -20,7 +20,7 @@ class TestEncrypt(unittest.TestCase):
         self.assertNotEqual(hash_1, hash_2)
 
     def test_get_small_secure_token_success(self):
-        from invytecore.lib.encrypt import get_small_secure_token
+        from codercore.lib.encrypt import get_small_secure_token
 
         token_1 = get_small_secure_token()
         token_2 = get_small_secure_token()
@@ -30,7 +30,7 @@ class TestEncrypt(unittest.TestCase):
         self.assertNotEqual(token_1, token_2)
 
     def test_get_secure_token_success(self):
-        from invytecore.lib.encrypt import get_secure_token
+        from codercore.lib.encrypt import get_secure_token
 
         token_1 = get_secure_token()
         token_2 = get_secure_token()

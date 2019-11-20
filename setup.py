@@ -1,6 +1,7 @@
 from setuptools import setup
 
 requires = [
+    'alembic',
     'bcrypt',
     'bleach',
     'psycopg2',
