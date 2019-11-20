@@ -17,5 +17,6 @@ setup(
     description='codercore',
     author="Code R",
     author_email='hello@coderstudio.nl',
+    test_suite='codercore',
     install_requires=requires
 )
