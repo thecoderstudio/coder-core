@@ -1,22 +1,11 @@
-## General information
-
-**Ticket**
-
-<https://partypeak.atlassian.net/browse/CODER->
-
 ## Description
 
-_Tell us what the ticket does._
+_Please give a description of the pull request._
 
 ## Dependencies
-### Cross-dependent on
-*
+_Are there any dependencies to pull requests in other repositories? If so please provide links to these pull requests here._
 
-### Depends on
 *
 
 ## Additional notes
-_Anything else you want to tell us. For example, does this ticket include breaking changes? If so, please tell us what these are and if there's anything we should be
-doing different when this PR is merged._
-
-_When creating a new PR be sure to fill in something under every heading, even if the answer is simply no._
+_Anything else you want to mention._
