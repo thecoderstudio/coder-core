@@ -1,21 +1,12 @@
 from setuptools import setup
 
-requires = [
-    'bcrypt',
-    'bleach',
-    'psycopg2',
-    'pycrypto',
-    'pyramid',
-    'marshmallow',
-    'sqlalchemy',
-    'zope.sqlalchemy'
-]
+requires = []
 
 setup(
     name='codercore',
     version='1.0.0',
     description='codercore',
     author="Code R",
-    author_email='hello@coderstudio.nl',
+    author_email='hello@coderstudio.dev',
     install_requires=requires
 )
