@@ -1,4 +1,4 @@
-name: Check, build and upload
+name: Check, build and release
 
 on:
   pull_request:
@@ -12,7 +12,8 @@ on:
 
 
 jobs:
-  check_build_and_upload:
+  build_and_release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,9 +33,11 @@ jobs:
       - name: Check build
         run: twine check dist/*
 
-      - name: Upload wheel and tar
-        uses: actions/upload-artifact@v3
+      - name: Publish build to pypi
+        run: twine upload dist/*
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
         with:
-          name: Release build
-          path: dist/*
-          retention-days: 5
+          generate_release_notes: true
+          files: dist/*
