@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=62"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codercore"
+version = "0.1.0"
+description = "codercore"
+readme = "README.md"
+authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
