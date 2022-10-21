@@ -1,0 +1,15 @@
+name: Publish release build
+
+on:
+  workflow_run:
+    workflows: ["Check, build and upload"]
+    branches: [master]
+    types:
+    - completed
+
+jobs:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: "Temp"
+        run: echo "hi"
