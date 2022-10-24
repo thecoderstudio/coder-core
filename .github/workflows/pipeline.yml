@@ -10,7 +10,7 @@ on:
     - develop
     - master
     tags:
-    - "v*.*.*"
+    - "*.*.*"
 
 
 jobs:
