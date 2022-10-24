@@ -36,6 +36,9 @@ jobs:
         run: twine check dist/*
 
       - name: Publish build to pypi
+        env:
+          username: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
         run: twine upload dist/*
 
       - name: Create release
