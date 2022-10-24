@@ -41,6 +41,11 @@ jobs:
           password: ${{ secrets.PYPI_TOKEN }}
         run: twine upload dist/*
 
+      - name: Publish build to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
