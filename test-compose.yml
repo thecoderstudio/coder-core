@@ -6,8 +6,8 @@ services:
     build:
       context: .
     volumes:
-      - .:/home/codercore/coder-core
-      - /home/codercore/coder-core/codercore.egg-info
+      - .:/home/coder/coder-core
+      - /home/coder/coder-core/codercore.egg-info
     networks:
       - test
     env_file:

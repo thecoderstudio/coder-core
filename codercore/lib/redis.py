@@ -1,10 +1,10 @@
-from functools import lru_cache
+from functools import cache
 from typing import Optional
 
 from redis import StrictRedis
 
 
-@lru_cache(maxsize=1)
+@cache
 def connection(
     host: str,
     port: int = 6379,
