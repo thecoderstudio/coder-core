@@ -1,6 +1,7 @@
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import as_declarative
 
 
+@as_declarative
 class Base:
     def set_fields(self, **kwargs) -> None:
         for key, value in kwargs.items():
@@ -14,6 +15,3 @@ class Base:
             return False
 
         return hash(self) == hash(other)
-
-
-Base = declarative_base(cls=Base)

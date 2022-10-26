@@ -1,16 +1,17 @@
+from functools import lru_cache
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker as sessionmaker_
 
-from codercore.db.models import Base
 
-Session = sessionmaker()
+@lru_cache(maxsize=1)
+def sessionmaker(connection_url: str, *args, **kwargs) -> sessionmaker_:
+    return sessionmaker(create_engine(connection_url), *args, **kwargs)
 
 
 def init_sqlalchemy(connection_url: str) -> Engine:
     engine = create_engine(connection_url)
-    Session.configure(bind=engine)
-    Base.metadata.bind = engine
     return engine
 
 
