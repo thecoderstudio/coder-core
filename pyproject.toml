@@ -8,6 +8,11 @@ version = "0.2.3"
 description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
+dependencies = [
+    'alembic ~= 1.8.1',
+    'redis ~= 4.3.2',
+    'sqlalchemy ~= 1.4.32'
+]
 
 [tool.bumpver]
 current_version = "0.2.3"
