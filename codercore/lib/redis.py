@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cache
 from typing import Any, Awaitable, Optional, Union
 
-from redis import StrictRedis
+from redis.asyncio import StrictRedis
 
 
 @cache
@@ -35,7 +35,7 @@ class Redis(StrictRedis):
         super().__init__(*args, **kwargs)
         self.default_ttl_in_seconds = default_ttl_in_seconds
 
-    def set(
+    async def set(
         self,
         *args,
         ex: Optional[int] = None,
@@ -43,4 +43,4 @@ class Redis(StrictRedis):
     ) -> Union[Awaitable, Any]:
         if not ex:
             ex = self.default_ttl_in_seconds
-        super().set(*args, ex=ex, **kwargs)
+        await super().set(*args, ex=ex, **kwargs)

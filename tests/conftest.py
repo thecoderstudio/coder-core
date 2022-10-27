@@ -36,5 +36,7 @@ def db_session(db_sessionmaker: sqlalchemy_sessionmaker) -> Iterator[Session]:
 
 
 @fixture
-def redis_connection(worker_id) -> Redis:
-    return connection(db=int(worker_id[2:]), **EnvSettings.redis)
+async def redis_connection(worker_id) -> Redis:
+    redis = connection(db=int(worker_id[2:]), **EnvSettings.redis)
+    yield redis
+    await redis.close()

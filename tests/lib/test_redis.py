@@ -14,18 +14,18 @@ def test_init_redis():
     assert redis.default_ttl_in_seconds == default_ttl
 
 
-def test_redis_set_default_ex(redis_connection):
+async def test_redis_set_default_ex(redis_connection):
     key = 'test'
     default_ttl = 30
     redis_connection.default_ttl_in_seconds = default_ttl
-    redis_connection.set(key, 'value')
-    assert redis_connection.ttl(key) == default_ttl
+    await redis_connection.set(key, 'value')
+    assert await redis_connection.ttl(key) == default_ttl
 
 
-def test_redis_set_given_ex(redis_connection):
+async def test_redis_set_given_ex(redis_connection):
     key = 'test'
     default_ttl = 30
     ttl = 25
     redis_connection.default_ttl_in_seconds = default_ttl
-    redis_connection.set(key, 'value', ex=ttl)
-    assert redis_connection.ttl(key) == ttl
+    await redis_connection.set(key, 'value', ex=ttl)
+    assert await redis_connection.ttl(key) == ttl
