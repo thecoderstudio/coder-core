@@ -16,7 +16,7 @@ from codercore.lib.settings import EnvSettings
 )
 def test_env_settings_database_connection_url():
     assert EnvSettings.database_connection_url == (
-        'postgresql://user:password@host/db')
+        'postgresql+asyncpg://user:password@host/db')
 
 
 def test_env_settings_redis():

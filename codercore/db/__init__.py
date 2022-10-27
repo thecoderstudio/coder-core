@@ -1,6 +1,6 @@
 from functools import cache
 
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_, Session as Session_
 
 from codercore.db.models import Base
@@ -13,9 +13,9 @@ def Session(connection_url: str) -> Session_:  # noqa
 
 @cache
 def sessionmaker(connection_url: str, *args, **kwargs) -> sessionmaker_:
-    engine = create_engine(connection_url)
+    engine = create_async_engine(connection_url)
     Base.metadata.bind = engine
-    return sessionmaker_(engine, *args, **kwargs)
+    return sessionmaker_(engine, *args, class_=AsyncSession, **kwargs)
 
 
 def get_connection_url(driver: str, user: str, password: str, host: str,

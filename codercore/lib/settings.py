@@ -8,7 +8,7 @@ class EnvSettings:
     @property
     def database_connection_url(cls) -> str:
         return get_connection_url(
-            'postgresql',
+            'postgresql+asyncpg',
             os.environ['POSTGRES_USER'],
             os.environ['POSTGRES_PASSWORD'],
             os.environ['POSTGRES_HOST'],

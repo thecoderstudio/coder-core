@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from codercore.db import get_connection_url, sessionmaker, Session
 
 
@@ -19,7 +21,7 @@ def test_sessionmaker(mocker):
     connection_url = "postgresql://test:test@localhost/test"
     engine = mocker.MagicMock()
     with (
-        patch('codercore.db.create_engine',
+        patch('codercore.db.create_async_engine',
               return_value=engine) as engine_mock,
         patch('codercore.db.Base') as base_mock,
         patch('codercore.db.sessionmaker_') as sessionmaker_mock
@@ -28,7 +30,7 @@ def test_sessionmaker(mocker):
 
     engine_mock.assert_called_once_with(connection_url)
     base_mock.metadata.bind == engine
-    sessionmaker_mock.assert_called_once_with(engine)
+    sessionmaker_mock.assert_called_once_with(engine, class_=AsyncSession)
 
 
 def test_session(mocker):
