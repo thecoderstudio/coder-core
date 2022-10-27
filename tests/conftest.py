@@ -33,13 +33,15 @@ def db_sessionmaker(worker_id: str) -> sqlalchemy_sessionmaker:
 async def db_session(
     db_sessionmaker: sqlalchemy_sessionmaker
 ) -> AsyncIterator[Session]:
-    async with db_sessionmaker() as session:
-        async with session.bind.begin() as conn:
-            try:
-                await conn.run_sync(Base.metadata.drop_all)
-                yield session
-            finally:
-                await conn.run_sync(Base.metadata.create_all)
+    async with (
+        db_sessionmaker() as session,
+        session.bind.begin() as conn
+    ):
+        try:
+            await conn.run_sync(Base.metadata.drop_all)
+            yield session
+        finally:
+            await conn.run_sync(Base.metadata.create_all)
 
 
 @fixture
