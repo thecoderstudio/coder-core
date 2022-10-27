@@ -10,4 +10,4 @@ RUN pip install -e coder-core[test]
 
 WORKDIR /home/coder/coder-core
 
-ENTRYPOINT ["pytest", "--cov=codercore", "-q", "--cov-report", "term-missing"]
+ENTRYPOINT ["pytest", "--cov=codercore", "-n", "logical", "-q", "--cov-report", "term-missing"]
