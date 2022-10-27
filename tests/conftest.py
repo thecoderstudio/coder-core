@@ -1,5 +1,5 @@
 import os
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
 
 from pytest import fixture
 from sqlalchemy.orm import sessionmaker as sqlalchemy_sessionmaker, Session
@@ -30,7 +30,9 @@ def db_sessionmaker(worker_id: str) -> sqlalchemy_sessionmaker:
 
 
 @fixture
-async def db_session(db_sessionmaker: sqlalchemy_sessionmaker) -> Iterator[Session]:
+async def db_session(
+    db_sessionmaker: sqlalchemy_sessionmaker
+) -> AsyncIterator[Session]:
     async with db_sessionmaker() as session:
         async with session.bind.begin() as conn:
             try:
@@ -41,7 +43,7 @@ async def db_session(db_sessionmaker: sqlalchemy_sessionmaker) -> Iterator[Sessi
 
 
 @fixture
-async def redis_connection(worker_id: str) -> Redis:
+async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
     redis = connection(db=int(worker_id[2:]), **EnvSettings.redis)
     yield redis
     await redis.close()
