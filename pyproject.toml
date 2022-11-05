@@ -4,13 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codercore"
-version = "0.2.3"
+version = "0.3.0"
 description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
+dependencies = [
+    'asyncpg ~= 0.27.0',
+    'redis ~= 4.3.2',
+    'sqlalchemy[asyncio] ~= 1.4.32'
+]
+
+[project.optional-dependencies]
+test = [
+    'psycopg2 ~= 2.9.5',
+    'pytest ~= 7.2.0',
+    'pytest-asyncio ~= 0.20.1',
+    'pytest-cov ~= 4.0.0',
+    'pytest-mock ~= 3.10.0',
+    'pytest-xdist[psutil] ~= 3.0.2',
+    'sqlalchemy-utils ~= 0.38.3'
+]
 
 [tool.bumpver]
-current_version = "0.2.3"
+current_version = "0.3.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

@@ -1,0 +1,40 @@
+version: '3'
+services:
+  coder-core-test:
+    container_name: coder-core-test
+    image: coder-core:test
+    build:
+      context: .
+    volumes:
+      - .:/home/coder/coder-core
+      - /home/coder/coder-core/codercore.egg-info
+    networks:
+      - test
+    env_file:
+      - database.env.test
+      - cache.env.test
+    depends_on:
+      - database-test
+      - cache-test
+    tty: true
+    stdin_open: true
+    entrypoint: "/bin/bash"
+    command: >
+      -c "../util/wait-for-it.sh database-test:5432 &&
+      pytest --cov=codercore -n logical -q --cov-report term-missing"
+  database-test:
+    container_name: coder-core-db-test
+    image: postgres:15
+    networks:
+      - test
+    env_file:
+      - database.env.test
+  cache-test:
+    container_name: coder-core-cache-test
+    image: redis:7
+    networks:
+      - test
+    env_file:
+      - cache.env.test
+networks:
+  test:
