@@ -3,11 +3,9 @@ name: Check, build and release
 on:
   pull_request:
     branches:
-    - develop
     - master
   push:
     branches:
-    - develop
     - master
     tags:
     - "*.*.*"
