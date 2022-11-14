@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker as sqlalchemy_sessionmaker, Session
 from sqlalchemy_utils import database_exists, create_database
 
 from codercore.db import get_connection_url, sessionmaker
-from codercore.db.models import Base
 from codercore.lib.redis import connection, Redis
 from codercore.lib.settings import EnvSettings
 
@@ -36,6 +35,7 @@ def db_sessionmaker(
 async def db_session(
     db_sessionmaker: sqlalchemy_sessionmaker
 ) -> AsyncIterator[Session]:
+    from codercore.db.models import Base
     async with db_sessionmaker() as session:
         async with session.bind.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
