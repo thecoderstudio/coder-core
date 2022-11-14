@@ -39,10 +39,10 @@ async def db_session(
         session.bind.begin() as conn
     ):
         try:
-            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
             yield session
         finally:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(Base.metadata.drop_all)
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
