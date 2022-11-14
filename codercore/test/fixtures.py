@@ -13,7 +13,9 @@ def db_sessionmaker(
     user: str,
     password: str,
     host: str,
-    worker_id: str
+    worker_id: str,
+    *args,
+    **kwargs
 ) -> sqlalchemy_sessionmaker:
     connection_settings = {
         'user': user,
@@ -28,21 +30,18 @@ def db_sessionmaker(
                                               **connection_settings)
     if not database_exists(sync_connection_url):
         create_database(sync_connection_url)
-    return sessionmaker(async_connection_url)
+    return sessionmaker(async_connection_url, *args, **kwargs)
 
 
 async def db_session(
     db_sessionmaker: sqlalchemy_sessionmaker
 ) -> AsyncIterator[Session]:
-    async with (
-        db_sessionmaker() as session,
-        session.bind.begin() as conn
-    ):
-        try:
-            await conn.run_sync(Base.metadata.create_all)
-            yield session
-        finally:
+    async with db_sessionmaker() as session:
+        async with session.bind.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+        async with session.begin():
+            yield session
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
