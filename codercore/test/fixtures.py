@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 
+from sqlalchemy import Metadata
 from sqlalchemy.orm import sessionmaker as sqlalchemy_sessionmaker, Session
 from sqlalchemy_utils import database_exists, create_database
 
@@ -34,12 +35,13 @@ def db_sessionmaker(
 
 
 async def db_session(
-    db_sessionmaker: sqlalchemy_sessionmaker
+    db_sessionmaker: sqlalchemy_sessionmaker,
+    metadata: Metadata = Base.metadata
 ) -> AsyncIterator[Session]:
     async with db_sessionmaker() as session:
         async with session.bind.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(metadata.drop_all)
+            await conn.run_sync(metadata.create_all)
         async with session.begin():
             yield session
 
