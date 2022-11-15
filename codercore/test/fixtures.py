@@ -39,11 +39,14 @@ async def db_session(
     metadata: MetaData = Base.metadata
 ) -> AsyncIterator[Session]:
     async with db_sessionmaker() as session:
-        async with session.bind.begin() as conn:
-            await conn.run_sync(metadata.drop_all)
-            await conn.run_sync(metadata.create_all)
-        async with session.begin():
-            yield session
+        try:
+            async with session.bind.begin() as conn:
+                await conn.run_sync(metadata.create_all)
+            async with session.begin():
+                yield session
+        finally:
+            async with session.bind.begin() as conn:
+                await conn.run_sync(metadata.drop_all)
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
