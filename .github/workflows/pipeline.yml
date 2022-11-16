@@ -19,6 +19,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Lint
+        uses: psf/black@stable
+
       - name: Test with pytest
         run: docker-compose -f test-compose.yml up --exit-code-from coder-core-test coder-core-test
 
