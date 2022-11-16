@@ -16,19 +16,19 @@ def db_sessionmaker(
     host: str,
     worker_id: str,
     *args,
-    **kwargs
+    **kwargs,
 ) -> sqlalchemy_sessionmaker:
     connection_settings = {
-        'user': user,
-        'password': password,
-        'host': host,
-        'database': worker_id
+        "user": user,
+        "password": password,
+        "host": host,
+        "database": worker_id,
     }
 
-    sync_connection_url = get_connection_url('postgresql',
-                                             **connection_settings)
-    async_connection_url = get_connection_url('postgresql+asyncpg',
-                                              **connection_settings)
+    sync_connection_url = get_connection_url("postgresql", **connection_settings)
+    async_connection_url = get_connection_url(
+        "postgresql+asyncpg", **connection_settings
+    )
     if not database_exists(sync_connection_url):
         create_database(sync_connection_url)
     return sessionmaker(async_connection_url, *args, **kwargs)
@@ -36,7 +36,7 @@ def db_sessionmaker(
 
 async def db_session(
     db_sessionmaker: sqlalchemy_sessionmaker,
-    metadata: MetaData = Base.metadata
+    metadata: MetaData = Base.metadata,
 ) -> AsyncIterator[Session]:
     async with db_sessionmaker() as session:
         try:
