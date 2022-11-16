@@ -24,6 +24,9 @@ test = [
     'pytest-mock ~= 3.10.0',
     'pytest-xdist[psutil] ~= 3.0.2',
 ]
+dev = [
+    'black ~= 22.10.0'
+]
 
 [tool.bumpver]
 current_version = "0.4.8"

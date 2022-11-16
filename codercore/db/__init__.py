@@ -18,6 +18,7 @@ def sessionmaker(connection_url: str, *args, **kwargs) -> sessionmaker_:
     return sessionmaker_(engine, *args, class_=AsyncSession, **kwargs)
 
 
-def get_connection_url(driver: str, user: str, password: str, host: str,
-                       database: str) -> str:
+def get_connection_url(
+    driver: str, user: str, password: str, host: str, database: str
+) -> str:
     return f"{driver}://{user}:{password}@{host}/{database}"
