@@ -1,15 +1,18 @@
 from codercore.db import get_connection_url
-from codercore.test.fixtures import (connection_settings, sync_db_connection_url,
-                                     async_db_connection_url)
+from codercore.test.fixtures import (
+    connection_settings,
+    sync_db_connection_url,
+    async_db_connection_url,
+)
 from tests.db.models.sample import Sample
 
 
 def test_connection_settings():
     data = {
-        'user': 'user',
-        'password': 'password',
-        'host': 'host',
-        'database': 'database'
+        "user": "user",
+        "password": "password",
+        "host": "host",
+        "database": "database",
     }
     assert connection_settings(**data) == data
 
@@ -23,8 +26,7 @@ def test_sync_db_connection_url(connection_settings):
 
 def test_async_db_connection_url(connection_settings):
     assert async_db_connection_url(connection_settings) == get_connection_url(
-        "postgresql+asyncpg",
-        **connection_settings
+        "postgresql+asyncpg", **connection_settings
     )
 
 
