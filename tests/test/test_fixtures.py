@@ -1,4 +1,31 @@
+from codercore.db import get_connection_url
+from codercore.test.fixtures import (connection_settings, sync_db_connection_url,
+                                     async_db_connection_url)
 from tests.db.models.sample import Sample
+
+
+def test_connection_settings():
+    data = {
+        'user': 'user',
+        'password': 'password',
+        'host': 'host',
+        'database': 'database'
+    }
+    assert connection_settings(**data) == data
+
+
+def test_sync_db_connection_url(connection_settings):
+    assert sync_db_connection_url(connection_settings) == get_connection_url(
+        "postgresql",
+        **connection_settings,
+    )
+
+
+def test_async_db_connection_url(connection_settings):
+    assert async_db_connection_url(connection_settings) == get_connection_url(
+        "postgresql+asyncpg",
+        **connection_settings
+    )
 
 
 async def test_db_session_autobegin(db_session):
@@ -26,7 +53,7 @@ async def test_db_session_manual_transaction(db_session):
 
 
 async def test_redis_connection(redis_connection):
-    key = 'foo'
-    value = b'bar'
+    key = "foo"
+    value = b"bar"
     await redis_connection.set(key, value)
     assert await redis_connection.get(key) == value
