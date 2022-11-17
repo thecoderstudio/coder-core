@@ -34,7 +34,7 @@ def db_sessionmaker(
     return sessionmaker(async_connection_url, *args, **kwargs)
 
 
-async def db_session(
+async def unstarted_db_session(
     db_sessionmaker: sqlalchemy_sessionmaker,
     metadata: MetaData = Base.metadata,
 ) -> AsyncIterator[Session]:
@@ -47,6 +47,11 @@ async def db_session(
         finally:
             async with session.bind.begin() as conn:
                 await conn.run_sync(metadata.drop_all)
+
+
+async def db_session(unstarted_db_session):
+    with unstarted_db_session.begin():
+        yield unstarted_db_session
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
