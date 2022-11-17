@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 
+from pytest import FixtureRequest
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils import database_exists, create_database, drop_database
@@ -57,7 +58,7 @@ async def db_session(
                 await conn.run_sync(metadata.drop_all)
 
 
-def clean_up_for_worker(request, sync_db_connection_url):
+def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) -> None:
     def cleanup():
         if not database_exists(sync_db_connection_url):
             return
