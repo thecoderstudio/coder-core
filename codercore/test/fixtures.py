@@ -42,8 +42,7 @@ async def unstarted_db_session(
         try:
             async with session.bind.begin() as conn:
                 await conn.run_sync(metadata.create_all)
-            async with session.begin():
-                yield session
+            yield session
         finally:
             async with session.bind.begin() as conn:
                 await conn.run_sync(metadata.drop_all)
