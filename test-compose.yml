@@ -21,7 +21,7 @@ services:
     entrypoint: "/bin/bash"
     command: >
       -c "../util/wait-for-it.sh database-test:5432 &&
-      pytest --cov=codercore -n logical -q"
+      pytest --cov=codercore --cov-report term-missing -n logical -q"
   database-test:
     container_name: coder-core-db-test
     image: postgres:15

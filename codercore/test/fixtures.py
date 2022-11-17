@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 
 from sqlalchemy import MetaData
-from sqlalchemy.orm import sessionmaker as sqlalchemy_sessionmaker, Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils import database_exists, create_database
 
 from codercore.db import get_connection_url, sessionmaker
@@ -10,14 +10,14 @@ from codercore.lib.redis import connection, Redis
 from codercore.lib.settings import EnvSettings
 
 
-def db_sessionmaker(
+def DBSession(  # noqa
     user: str,
     password: str,
     host: str,
     worker_id: str,
     *args,
     **kwargs,
-) -> sqlalchemy_sessionmaker:
+) -> AsyncSession:
     connection_settings = {
         "user": user,
         "password": password,
@@ -34,11 +34,11 @@ def db_sessionmaker(
     return sessionmaker(async_connection_url, *args, **kwargs)
 
 
-async def unstarted_db_session(
-    db_sessionmaker: sqlalchemy_sessionmaker,
+async def db_session(
+    DBSession: AsyncSession,  # noqa
     metadata: MetaData = Base.metadata,
-) -> AsyncIterator[Session]:
-    async with db_sessionmaker() as session:
+) -> AsyncIterator[AsyncSession]:
+    async with DBSession() as session:
         try:
             async with session.bind.begin() as conn:
                 await conn.run_sync(metadata.create_all)
@@ -46,11 +46,6 @@ async def unstarted_db_session(
         finally:
             async with session.bind.begin() as conn:
                 await conn.run_sync(metadata.drop_all)
-
-
-async def db_session(unstarted_db_session):
-    with unstarted_db_session.begin():
-        yield unstarted_db_session
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
