@@ -4,6 +4,7 @@ from pytest import FixtureRequest
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker as sessionmaker_
+from sqlalchemy.pool import NullPool
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from codercore.db import get_connection_url, sessionmaker
@@ -42,7 +43,12 @@ def DBSession(  # noqa
 ) -> sessionmaker_:
     if not database_exists(sync_db_connection_url):
         create_database(sync_db_connection_url)
-    return sessionmaker(async_db_connection_url, *args, **kwargs)
+    return sessionmaker(
+        async_db_connection_url,
+        *args,
+        poolclass=NullPool,
+        **kwargs
+    )
 
 
 async def db_session(
