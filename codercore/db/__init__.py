@@ -11,6 +11,7 @@ def Session(connection_url: str) -> Session_:  # noqa
     return sessionmaker(connection_url)()
 
 
+@cache
 def sessionmaker(connection_url: str, *args, **kwargs) -> sessionmaker_:
     engine = create_async_engine(connection_url)
     Base.metadata.bind = engine
