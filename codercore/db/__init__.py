@@ -1,7 +1,9 @@
 from functools import cache
+from typing import Type, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_, Session as Session_
+from sqlalchemy.pool import Pool
 
 from codercore.db.models import Base
 
@@ -12,8 +14,13 @@ def Session(connection_url: str) -> Session_:  # noqa
 
 
 @cache
-def sessionmaker(connection_url: str, *args, **kwargs) -> sessionmaker_:
-    engine = create_async_engine(connection_url)
+def sessionmaker(
+    connection_url: str,
+    *args,
+    poolclass: Optional[Type[Pool]] = None,
+    **kwargs,
+) -> sessionmaker_:
+    engine = create_async_engine(connection_url, poolclass=poolclass)
     Base.metadata.bind = engine
     return sessionmaker_(engine, *args, class_=AsyncSession, **kwargs)
 

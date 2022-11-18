@@ -29,7 +29,7 @@ def test_sessionmaker(mocker):
     ):
         sessionmaker(connection_url)
 
-    engine_mock.assert_called_once_with(connection_url)
+    engine_mock.assert_called_once_with(connection_url, poolclass=None)
     base_mock.metadata.bind == engine
     sessionmaker_mock.assert_called_once_with(engine, class_=AsyncSession)
 
