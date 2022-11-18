@@ -43,12 +43,7 @@ def DBSession(  # noqa
 ) -> sessionmaker_:
     if not database_exists(sync_db_connection_url):
         create_database(sync_db_connection_url)
-    return sessionmaker(
-        async_db_connection_url,
-        *args,
-        poolclass=NullPool,
-        **kwargs
-    )
+    return sessionmaker(async_db_connection_url, *args, poolclass=NullPool, **kwargs)
 
 
 async def db_session(

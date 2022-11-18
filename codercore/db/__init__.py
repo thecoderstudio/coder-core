@@ -18,7 +18,7 @@ def sessionmaker(
     connection_url: str,
     *args,
     poolclass: Optional[Type[Pool]] = None,
-    **kwargs
+    **kwargs,
 ) -> sessionmaker_:
     engine = create_async_engine(connection_url, poolclass=poolclass)
     Base.metadata.bind = engine
