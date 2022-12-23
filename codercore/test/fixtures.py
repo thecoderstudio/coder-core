@@ -71,6 +71,7 @@ def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) ->
 
 
 async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
-    redis = connection(db=int(worker_id[2:]), **EnvSettings.redis)
+    redis = connection.__wrapped__(db=int(worker_id[2:]), **EnvSettings.redis)
     yield redis
+    await redis.flushdb()
     await redis.close()
