@@ -9,23 +9,23 @@ description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
 dependencies = [
-    'asyncpg ~= 0.27.0',
-    'psycopg2 ~= 2.9.5',
-    'pytest ~= 7.2.0',
-    'redis ~= 4.3.2',
-    'sqlalchemy[asyncio] ~= 1.4.32',
-    'sqlalchemy-utils ~= 0.38.3'
+    'asyncpg ~= 0.27',
+    'psycopg2 ~= 2.9',
+    'pytest ~= 7.2',
+    'redis ~= 4.3',
+    'sqlalchemy[asyncio] ~= 1.4',
+    'sqlalchemy-utils ~= 0.38'
 ]
 
 [project.optional-dependencies]
 test = [
-    'pytest-asyncio ~= 0.20.1',
-    'pytest-cov ~= 4.0.0',
-    'pytest-mock ~= 3.10.0',
-    'pytest-xdist[psutil] ~= 3.0.2',
+    'pytest-asyncio ~= 0.20',
+    'pytest-cov ~= 4.0',
+    'pytest-mock ~= 3.10',
+    'pytest-xdist[psutil] ~= 3.0',
 ]
 dev = [
-    'black ~= 22.10.0'
+    'black ~= 22.10'
 ]
 
 [tool.bumpver]
