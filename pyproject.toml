@@ -4,13 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codercore"
-version = "1.2.0"
+version = "1.5.0"
 description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
 dependencies = [
     'asyncpg ~= 0.27',
+    'bcrypt ~= 4.0',
     'psycopg2 ~= 2.9',
+    'pydantic ~= 1.10',
     'pytest ~= 7.2',
     'redis ~= 4.3',
     'sqlalchemy[asyncio] ~= 1.4',
@@ -25,11 +27,13 @@ test = [
     'pytest-xdist[psutil] ~= 3.0',
 ]
 dev = [
-    'black ~= 22.10'
+    'black ~= 22.10',
+    'flake8 ~= 6.0',
+    'isort ~= 5.11',
 ]
 
 [tool.bumpver]
-current_version = "1.2.0"
+current_version = "1.5.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
@@ -41,3 +45,16 @@ push = true
     'current_version = "{version}"',
     'version = "{version}"'
 ]
+
+[tool.coverage.run]
+source = ["codercore"]
+concurrency = ["greenlet", "thread"]
+
+[tool.coverage.report]
+show_missing = true
+omit = ["tests/*"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["codercore", "tests"]
+combine_as_imports = true
