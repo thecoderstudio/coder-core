@@ -27,7 +27,9 @@ test = [
     'pytest-xdist[psutil] ~= 3.0',
 ]
 dev = [
-    'black ~= 22.10'
+    'black ~= 22.10',
+    'flake8 ~= 6.0',
+    'isort ~= 5.11',
 ]
 
 [tool.bumpver]
@@ -43,3 +45,16 @@ push = true
     'current_version = "{version}"',
     'version = "{version}"'
 ]
+
+[tool.coverage.run]
+source = ["codercore"]
+concurrency = ["greenlet", "thread"]
+
+[tool.coverage.report]
+show_missing = true
+omit = ["tests/*"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["codercore", "tests"]
+combine_as_imports = true
