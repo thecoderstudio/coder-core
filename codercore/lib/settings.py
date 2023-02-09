@@ -32,11 +32,6 @@ class EnvSettings:
 
     @classmethod
     @property
-    def database_instance_connection_name(cls) -> str:
-        return os.environ["POSTGRES_INSTANCE_CONNECTION_NAME"]
-
-    @classmethod
-    @property
     def redis(cls) -> dict:
         return {
             "host": os.environ["REDIS_HOST"],
