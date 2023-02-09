@@ -36,6 +36,7 @@ def test_env_settings_database():
         "password": "password",
         "host": "host",
         "database": "db",
+        "use_connector": False,
     }
 
 
@@ -54,6 +55,7 @@ def test_env_settings_database_through_connector():
         "user": "user",
         "database": "db",
         "instance_connection_name": "connection",
+        "use_connector": True,
     }
 
 
