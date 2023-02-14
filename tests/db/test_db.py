@@ -68,23 +68,29 @@ def test_session(mocker):
     assert session == session_mock()
 
 
-def test_get_connection_with_auto_iam_creator(mocker):
+async def test_get_connection_with_auto_iam_creator(mocker):
     instance_connection_name = "connection"
     database = "database"
     user = "user"
     expected_connection = mocker.MagicMock()
     connector = mocker.MagicMock()
-    connector.connect.return_value = expected_connection
-    with patch("codercore.db.Connector", return_value=connector):
-        creator = get_connection_with_auto_iam_creator(
+    connector.connect_async.return_value = expected_connection
+    with (
+        patch("codercore.db.create_async_connector", return_value=connector),
+        patch("codercore.db.AsyncAdapt_asyncpg_connection") as adapted_connection,
+        patch("codercore.db.await_only") as await_only_mock,
+    ):
+        creator = await get_connection_with_auto_iam_creator(
             instance_connection_name,
             user,
             database,
         )
 
-    connection = creator()
-    assert connection == expected_connection
-    connector.connect.assert_called_once_with(
+        connection = creator()
+    assert connection == adapted_connection(
+        "asyncpg", await_only_mock(expected_connection)
+    )
+    connector.connect_async.assert_called_once_with(
         instance_connection_name,
         "asyncpg",
         user=user,
