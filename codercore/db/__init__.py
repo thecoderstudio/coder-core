@@ -3,7 +3,10 @@ from typing import Callable, Optional, Type
 
 from asyncpg.connection import Connection
 from google.cloud.sql.connector import IPTypes, create_async_connector
-from sqlalchemy.dialects.postgresql.asyncpg import AsyncAdapt_asyncpg_connection
+from sqlalchemy.dialects.postgresql.asyncpg import (
+    AsyncAdapt_asyncpg_connection,
+    AsyncAdapt_asyncpg_dbapi,
+)
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import Session as Session_, sessionmaker as sessionmaker_
 from sqlalchemy.pool import Pool
@@ -55,6 +58,9 @@ async def get_connection_with_auto_iam_creator(
             enable_iam_auth=True,
             ip_type=IPTypes.PUBLIC,
         )
-        return AsyncAdapt_asyncpg_connection("asyncpg", await_only(connection))
+        return AsyncAdapt_asyncpg_connection(
+            AsyncAdapt_asyncpg_dbapi(__import__("asyncpg")),
+            await_only(connection),
+        )
 
     return creator
