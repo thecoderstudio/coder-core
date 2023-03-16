@@ -1,12 +1,28 @@
 from __future__ import annotations
 
-from functools import cache
-from typing import Any, Awaitable, Optional, Union
+import inspect
+from functools import cache as functools_cache, wraps
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Concatenate,
+    Optional,
+    ParamSpec,
+    TypeVar,
+    Union,
+)
 
 from redis.asyncio import StrictRedis
 
+T = TypeVar("T")
+Cacheable = TypeVar("Cacheable", bytes, memoryview, str, int, float)
+RT = TypeVar("RT", bound=Cacheable)
+CT = TypeVar("CT", Cacheable, Awaitable[Cacheable])
+P = ParamSpec("P")
 
-@cache
+
+@functools_cache
 def connection(
     host: str,
     port: int = 6379,
@@ -44,3 +60,31 @@ class Redis(StrictRedis):
         if not ex:
             ex = self.default_ttl_in_seconds
         await super().set(*args, ex=ex, **kwargs)
+
+
+def cache(
+    key: Callable[P, str] | str,
+    ex: int | None = None,
+    deserialize: Callable[[Any], RT] = lambda x: x,
+) -> Callable[Callable[P, CT], Callable[Concatenate[Redis, str, P], Awaitable[RT]],]:
+    def decorate(
+        func: Callable[P, CT]
+    ) -> Callable[Concatenate[Redis, str, P], Awaitable[RT]]:
+        @wraps(func)
+        async def wrapper(
+            *args: P.args,
+            connection: Redis,
+            **kwargs: P.kwargs,
+        ) -> RT:
+            formatted_key = key if isinstance(key, str) else key(*args, **kwargs)
+            if (result := await connection.get(formatted_key)) is not None:
+                return deserialize(result)
+            result = func(*args, **kwargs)
+            if inspect.iscoroutine(result):
+                result = await result
+            await connection.set(formatted_key, result, ex=ex)
+            return result
+
+        return wrapper
+
+    return decorate
