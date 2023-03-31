@@ -1,8 +1,8 @@
 from codercore.db import get_connection_url
 from codercore.test.fixtures import (
+    async_db_connection_url,
     connection_settings,
     sync_db_connection_url,
-    async_db_connection_url,
 )
 from tests.db.models.sample import Sample
 
@@ -52,6 +52,14 @@ async def test_db_session_manual_transaction(db_session):
 
     assert initial_count == 0
     assert updated_count == 1
+
+
+async def test_redis_connection_maker(redis_connection_maker):
+    redis_connection = await redis_connection_maker()
+    key = "foo"
+    value = b"bar"
+    await redis_connection.set(key, value)
+    assert await redis_connection.get(key) == value
 
 
 async def test_redis_connection(redis_connection):

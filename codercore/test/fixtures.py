@@ -1,15 +1,16 @@
 from collections.abc import AsyncIterator
+from typing import Awaitable, Callable
 
 from pytest import FixtureRequest
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker as sessionmaker_
 from sqlalchemy.pool import NullPool
-from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from codercore.db import get_connection_url, sessionmaker
 from codercore.db.models import Base
-from codercore.lib.redis import connection, Redis
+from codercore.lib.redis import Redis, connection
 from codercore.lib.settings import EnvSettings
 
 
@@ -70,8 +71,19 @@ def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) ->
     request.addfinalizer(cleanup)
 
 
-async def redis_connection(worker_id: str) -> AsyncIterator[Redis]:
-    redis = connection.__wrapped__(db=int(worker_id[2:]), **EnvSettings.redis)
-    yield redis
+async def redis_connection_maker(
+    worker_id: str,
+) -> AsyncIterator[Callable[[], Awaitable[Redis]]]:
+    async def redis_connection() -> Redis:
+        return connection.__wrapped__(db=int(worker_id[2:]), **EnvSettings.redis)
+
+    yield redis_connection
+    redis = await redis_connection()
     await redis.flushdb()
     await redis.close()
+
+
+async def redis_connection(
+    redis_connection_maker: Callable[[], Awaitable[Redis]]
+) -> Redis:
+    return await redis_connection_maker()
