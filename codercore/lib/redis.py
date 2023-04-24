@@ -83,7 +83,7 @@ def cache(
             if inspect.iscoroutine(result):
                 result = await result
             await connection.set(formatted_key, result, ex=ex)
-            return result
+            return deserialize(result)
 
         return wrapper
 
