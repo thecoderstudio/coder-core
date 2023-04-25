@@ -10,6 +10,7 @@ readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
 dependencies = [
     'asyncpg ~= 0.27',
+    'asyncstdlib ~= 3.10',
     'bcrypt ~= 4.0',
     'cloud-sql-python-connector[asyncpg] ~= 1.1',
     'psycopg2 ~= 2.9',

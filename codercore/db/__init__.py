@@ -2,6 +2,7 @@ from functools import cache
 from typing import Callable, Optional, Type
 
 from asyncpg.connection import Connection
+from asyncstdlib.functools import cache as async_cache
 from google.cloud.sql.connector import IPTypes, create_async_connector
 from sqlalchemy.dialects.postgresql.asyncpg import (
     AsyncAdapt_asyncpg_connection,
@@ -42,7 +43,7 @@ def get_connection_url(
     return f"{driver}://{user}:{password}@{host}/{database}"
 
 
-@cache
+@async_cache
 async def get_connection_with_auto_iam_creator(
     instance_connection_name: str,
     user: str,
