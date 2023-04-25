@@ -42,6 +42,7 @@ def get_connection_url(
     return f"{driver}://{user}:{password}@{host}/{database}"
 
 
+@cache
 async def get_connection_with_auto_iam_creator(
     instance_connection_name: str,
     user: str,
