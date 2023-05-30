@@ -7,6 +7,7 @@ from codercore.db import (
     Session,
     get_connection_url,
     get_connection_with_auto_iam_creator,
+    select,
     sessionmaker,
 )
 
@@ -98,3 +99,12 @@ async def test_get_connection_with_auto_iam_creator(mocker):
         enable_iam_auth=True,
         ip_type=IPTypes.PUBLIC,
     )
+
+
+def test_select(mocker):
+    column_mock = mocker.MagicMock()
+    with patch("codercore.db.sa_select") as select_mock:
+        statement_mock = select(column_mock)
+
+    assert statement_mock.paginate is not None
+    select_mock.assert_called_once_with(column_mock)

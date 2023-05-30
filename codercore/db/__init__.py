@@ -4,6 +4,7 @@ from typing import Callable, Optional, Type
 from asyncpg.connection import Connection
 from asyncstdlib.functools import cache as async_cache
 from google.cloud.sql.connector import IPTypes, create_async_connector
+from sqlalchemy import select as sa_select
 from sqlalchemy.dialects.postgresql.asyncpg import (
     AsyncAdapt_asyncpg_connection,
     AsyncAdapt_asyncpg_dbapi,
@@ -11,9 +12,11 @@ from sqlalchemy.dialects.postgresql.asyncpg import (
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import Session as Session_, sessionmaker as sessionmaker_
 from sqlalchemy.pool import Pool
+from sqlalchemy.sql import Select
 from sqlalchemy.util import await_only
 
 from codercore.db.models import Base
+from codercore.db.pagination import paginate
 
 
 @cache
@@ -66,3 +69,9 @@ async def get_connection_with_auto_iam_creator(
         )
 
     return creator
+
+
+def select(*args, **kwargs) -> Select:
+    statement = sa_select(*args, **kwargs)
+    statement.paginate = paginate.__get__(statement)
+    return statement
