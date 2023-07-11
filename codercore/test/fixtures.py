@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Awaitable, Callable
 
 from pytest import FixtureRequest
@@ -71,19 +72,30 @@ def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) ->
     request.addfinalizer(cleanup)
 
 
-async def redis_connection_maker(
+@asynccontextmanager
+async def _redis_connection_maker(
     worker_id: str,
-) -> AsyncIterator[Callable[[], Awaitable[Redis]]]:
+) -> AsyncIterator[Awaitable[Redis]]:
     async def redis_connection() -> Redis:
         return connection.__wrapped__(db=int(worker_id[2:]), **EnvSettings.redis)
 
-    yield redis_connection
-    redis = await redis_connection()
-    await redis.flushdb()
-    await redis.close()
+    try:
+        conn = await redis_connection()
+        yield conn
+    finally:
+        await conn.flushdb()
+        await conn.close()
+
+
+async def redis_connection_maker(
+    worker_id: str,
+) -> Callable[[], AsyncIterator[Awaitable[Redis]]]:
+    return _redis_connection_maker
 
 
 async def redis_connection(
-    redis_connection_maker: Callable[[], Awaitable[Redis]]
+    redis_connection_maker: Callable[[], Awaitable[Redis]],
+    worker_id: str,
 ) -> Redis:
-    return await redis_connection_maker()
+    async with redis_connection_maker(worker_id) as conn:
+        return conn

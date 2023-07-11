@@ -54,12 +54,12 @@ async def test_db_session_manual_transaction(db_session):
     assert updated_count == 1
 
 
-async def test_redis_connection_maker(redis_connection_maker):
-    redis_connection = await redis_connection_maker()
-    key = "foo"
-    value = b"bar"
-    await redis_connection.set(key, value)
-    assert await redis_connection.get(key) == value
+async def test_redis_connection_maker(redis_connection_maker, worker_id):
+    async with redis_connection_maker(worker_id) as redis_connection:
+        key = "foo"
+        value = b"bar"
+        await redis_connection.set(key, value)
+        assert await redis_connection.get(key) == value
 
 
 async def test_redis_connection(redis_connection):
