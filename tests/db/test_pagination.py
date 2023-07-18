@@ -1,8 +1,8 @@
 from pytest import fixture
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, select
 
-from codercore.db import Base, select
-from codercore.db.pagination import Cursor
+from codercore.db import Base
+from codercore.db.pagination import Cursor, paginate
 from codercore.lib.collection import Direction
 
 
@@ -52,7 +52,8 @@ async def test_paginate_forwards_order_desc(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=cursor,
                         order_by=Example.value,
@@ -77,7 +78,8 @@ async def test_paginate_backwards_order_desc(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=cursor,
                         order_by=Example.value,
@@ -102,7 +104,8 @@ async def test_paginate_forwards_order_asc(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=cursor,
                         order_by=Example.value,
@@ -127,7 +130,8 @@ async def test_paginate_backwards_order_asc(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=cursor,
                         order_by=Example.value,
@@ -152,7 +156,8 @@ async def test_paginate_backwards_order_asc_limited(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=cursor,
                         order_by=Example.value,
@@ -172,7 +177,8 @@ async def test_paginate_no_cursor(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=None,
                         order_by=Example.value,
@@ -192,7 +198,8 @@ async def test_paginate_order_by_id_no_cursor(db_session, a, b, c):
         result = (
             (
                 await db_session.execute(
-                    select(Example).paginate(
+                    paginate(
+                        select(Example),
                         id_column=Example.id,
                         cursor=None,
                         order_by=Example.id,
