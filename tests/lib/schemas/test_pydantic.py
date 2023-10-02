@@ -1,5 +1,5 @@
-from codercore.lib.schemas.pydantic import ORMBase
+from codercore.lib.schemas.pydantic import FromAttributesBase
 
 
-def test_orm_base():
-    assert ORMBase.Config.orm_mode
+def test_from_attributes_base():
+    assert FromAttributesBase.model_config["from_attributes"]
