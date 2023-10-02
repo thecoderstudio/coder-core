@@ -1,5 +1,7 @@
-from dataclasses import dataclass
-from typing import Any, Callable
+import json
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from dataclasses import asdict, dataclass
+from typing import Any, Callable, Self
 
 from sqlalchemy import Column, and_, or_, text
 from sqlalchemy.sql import ColumnElement, Select
@@ -12,6 +14,22 @@ class Cursor:
     last_id: Any
     last_value: Any
     direction: Direction
+
+    def __bytes__(self) -> bytes:
+        return self.encode()
+
+    def __str__(self) -> str:
+        return self.encode().decode()
+
+    def __repr__(self) -> str:
+        return str(asdict(self))
+
+    def encode(self) -> bytes:
+        return urlsafe_b64encode(self.json().encode())
+
+    @staticmethod
+    def decode(v: bytes) -> Self:
+        return Self(**json.loads(urlsafe_b64decode(v).decode()))
 
 
 def _get_pagination_operator(
