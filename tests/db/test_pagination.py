@@ -1,3 +1,7 @@
+import json
+from base64 import urlsafe_b64encode
+from dataclasses import asdict
+
 from pytest import fixture
 from sqlalchemy import Column, Integer, String, select
 
@@ -212,3 +216,35 @@ async def test_paginate_order_by_id_no_cursor(db_session, a, b, c):
             .all()
         )
     assert result == [c, b, a]
+
+
+def test_cursor_bytes():
+    cursor = Cursor(last_id="A", last_value=1, direction="asc")
+    assert bytes(cursor) == cursor.encode()
+
+
+def test_cursor_str():
+    cursor = Cursor(last_id="A", last_value=1, direction="asc")
+    assert str(cursor) == cursor.encode().decode()
+
+
+def test_cursor_repr():
+    cursor = Cursor(last_id="A", last_value=1, direction="asc")
+    assert repr(cursor) == str(
+        {
+            "last_id": cursor.last_id,
+            "last_value": cursor.last_value,
+            "direction": cursor.direction,
+        }
+    )
+
+
+def test_cursor_encode():
+    cursor = Cursor(last_id="A", last_value=1, direction="asc")
+    expected_bytes = urlsafe_b64encode(json.dumps(asdict(cursor)).encode())
+    assert cursor.encode() == expected_bytes
+
+
+def test_cursor_decode():
+    cursor = Cursor(last_id="A", last_value=1, direction="asc")
+    assert cursor.decode(cursor.encode()) == cursor
