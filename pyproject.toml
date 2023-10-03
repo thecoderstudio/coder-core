@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codercore"
-version = "3.0.0"
+version = "4.2.0"
 description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
@@ -14,7 +14,7 @@ dependencies = [
     'bcrypt ~= 4.0',
     'cloud-sql-python-connector[asyncpg] ~= 1.1',
     'psycopg2 ~= 2.9',
-    'pydantic ~= 1.10',
+    'pydantic ~= 2.4',
     'pytest ~= 7.2',
     'redis ~= 4.3',
     'sqlalchemy[asyncio] ~= 1.4',
@@ -35,7 +35,7 @@ dev = [
 ]
 
 [tool.bumpver]
-current_version = "3.0.0"
+current_version = "4.2.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
