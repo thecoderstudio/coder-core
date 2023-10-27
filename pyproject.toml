@@ -19,7 +19,7 @@ dependencies = [
     'pytest ~= 7.2',
     'redis ~= 4.3',
     'sqlalchemy[asyncio] ~= 2.0',
-    'sqlalchemy-utils ~= 0.38'
+    'sqlalchemy-utils ~= 0.41'
 ]
 
 [project.optional-dependencies]
