@@ -66,7 +66,10 @@ def cache(
     key: Callable[P, str] | str,
     ex: int | None = None,
     deserialize: Callable[[Any], RT] = lambda x: x,
-) -> Callable[Callable[P, CT], Callable[Concatenate[Redis, str, P], Awaitable[RT]],]:
+) -> Callable[
+    Callable[P, CT],
+    Callable[Concatenate[Redis, str, P], Awaitable[RT]],
+]:
     def decorate(
         func: Callable[P, CT]
     ) -> Callable[Concatenate[Redis, str, P], Awaitable[RT]]:
