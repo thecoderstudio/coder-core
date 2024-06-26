@@ -2,6 +2,6 @@ from enum import StrEnum
 
 
 class UpperStrEnum(StrEnum):
-    @classmethod
-    def _generate_next_value_(cls, *args, **kwargs) -> str:
-        return super()._generate_next_value_(*args, **kwargs).upper()
+    @staticmethod
+    def _generate_next_value_(name: str, *args, **kwargs) -> str:
+        return name.upper()
