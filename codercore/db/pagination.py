@@ -25,11 +25,14 @@ class Cursor:
         return str(asdict(self))
 
     def encode(self) -> bytes:
-        return urlsafe_b64encode(json.dumps(asdict(self)).encode())
+        return urlsafe_b64encode(self._json_dumps().encode())
 
     @staticmethod
     def decode(v: bytes) -> Self:
         return Cursor(**json.loads(urlsafe_b64decode(v).decode()))
+
+    def _json_dumps(self) -> str:
+        return json.dumps(asdict(self))
 
 
 def _get_pagination_operator(
