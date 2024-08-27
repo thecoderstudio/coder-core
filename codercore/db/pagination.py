@@ -126,11 +126,14 @@ def paginate(
     order_direction: Direction,
     limit: int,
 ) -> Select:
-    id_columns = id_column if isinstance(id_column, (list, tuple)) else (id_column,)
+    scalar_id = isinstance(id_column, (list, tuple))
+    id_columns = id_column if scalar_id else (id_column,)
     if cursor:
         if not isinstance(order_by, (list, tuple)):
             order_by = (order_by,)
             cursor.last_value = (cursor.last_value,)
+        if not scalar_id:
+            cursor.last_id = (cursor.last_id,)
         statement = _paginate(
             statement,
             id_columns,
