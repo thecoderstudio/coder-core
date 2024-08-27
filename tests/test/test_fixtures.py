@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 from codercore.db import get_connection_url
 from codercore.test.fixtures import (
     async_db_connection_url,
+    clean_up_for_worker,
     connection_settings,
     sync_db_connection_url,
 )
@@ -67,3 +70,39 @@ async def test_redis_connection(redis_connection):
     value = b"bar"
     await redis_connection.set(key, value)
     assert await redis_connection.get(key) == value
+
+
+def test_cleanup_for_worker_db_exists(mocker):
+    request_mock = mocker.MagicMock()
+    db_url = "localhost"
+    clean_up_for_worker(request_mock, db_url)
+    cleanup = request_mock.addfinalizer.call_args[0][0]
+
+    with (
+        patch(
+            "codercore.test.fixtures.database_exists", return_value=True
+        ) as database_exists_mock,
+        patch("codercore.test.fixtures.drop_database") as drop_database_mock,
+    ):
+        cleanup()
+
+    database_exists_mock.assert_called_once_with(db_url)
+    drop_database_mock.assert_called_once_with(db_url)
+
+
+def test_cleanup_for_worker_db_doesnt_exist(mocker):
+    request_mock = mocker.MagicMock()
+    db_url = "localhost"
+    clean_up_for_worker(request_mock, db_url)
+    cleanup = request_mock.addfinalizer.call_args[0][0]
+
+    with (
+        patch(
+            "codercore.test.fixtures.database_exists", return_value=False
+        ) as database_exists_mock,
+        patch("codercore.test.fixtures.drop_database") as drop_database_mock,
+    ):
+        cleanup()
+
+    database_exists_mock.assert_called_once_with(db_url)
+    drop_database_mock.assert_not_called()
