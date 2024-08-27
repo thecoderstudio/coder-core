@@ -1,4 +1,8 @@
 from enum import StrEnum
+from typing import TypeVar
+
+T = TypeVar("T")
+SequentialCollection = list[T] | tuple[T, ...]
 
 
 class UpperStrEnum(StrEnum):

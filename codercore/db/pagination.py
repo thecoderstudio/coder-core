@@ -1,6 +1,5 @@
 import json
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from typing import Any, Callable, Self
 
@@ -9,6 +8,7 @@ from sqlalchemy.sql import ColumnElement, Select
 from sqlalchemy.sql.expression import TextClause
 
 from codercore.lib.collection import Direction
+from codercore.types import SequentialCollection
 
 
 @dataclass
@@ -59,7 +59,7 @@ def _get_order_operator(
 
 
 def _get_order_comparable(
-    order_by: Sequence[Column, ...],
+    order_by: SequentialCollection[Column],
     order_direction: Direction,
     cursor: Cursor,
 ) -> list[bool]:
@@ -72,13 +72,14 @@ def _get_order_comparable(
 
 
 def _is_tied_last_value(
-    order_by: Sequence[Column, ...], last_value: Sequence[Any]
+    order_by: SequentialCollection[Column],
+    last_value: SequentialCollection[Any],
 ) -> bool:
     return and_(column == last_value[i] for i, column in enumerate(order_by))
 
 
 def _get_id_comparables(
-    id_columns: Sequence[Column, ...], cursor: Cursor
+    id_columns: SequentialCollection[Column], cursor: Cursor
 ) -> list[bool]:
     return or_(
         _get_pagination_operator(column, cursor.direction)(cursor.last_id[i])
@@ -88,9 +89,9 @@ def _get_id_comparables(
 
 def _paginate(
     statement: Select,
-    id_columns: Sequence[Column, ...],
+    id_columns: SequentialCollection[Column],
     cursor: Cursor,
-    order_by: Sequence[Column, ...],
+    order_by: SequentialCollection[Column],
     order_direction: Direction,
 ) -> Select:
     return statement.where(
@@ -105,27 +106,29 @@ def _paginate(
 
 
 def _get_order_by_clauses(
-    order_by: Sequence[Column, ...],
+    order_by: SequentialCollection[Column],
     order_direction: Direction,
 ) -> list[TextClause]:
     return [text(f"{column.name} {order_direction}") for column in order_by]
 
 
-def _get_order_by_id_clauses(id_columns: Sequence[Column, ...]) -> list[TextClause]:
+def _get_order_by_id_clauses(
+    id_columns: SequentialCollection[Column],
+) -> list[TextClause]:
     return [text(f"{column.name} asc") for column in id_columns]
 
 
 def paginate(
     statement: Select,
-    id_column: Column | Sequence[Column, ...],
+    id_column: Column | SequentialCollection[Column],
     cursor: Cursor | None,
-    order_by: Column | Sequence[Column, ...],
+    order_by: Column | SequentialCollection[Column],
     order_direction: Direction,
     limit: int,
 ) -> Select:
-    id_columns = id_column if isinstance(id_column, Sequence) else (id_column,)
+    id_columns = id_column if isinstance(id_column, (list, tuple)) else (id_column,)
     if cursor:
-        if not isinstance(order_by, Sequence):
+        if not isinstance(order_by, (list, tuple)):
             order_by = (order_by,)
             cursor.last_value = (cursor.last_value,)
         statement = _paginate(
@@ -135,7 +138,7 @@ def paginate(
             order_by,
             order_direction,
         )
-    elif not isinstance(order_by, Sequence):
+    elif not isinstance(order_by, (list, tuple)):
         order_by = (order_by,)
     statement = statement.order_by(
         *_get_order_by_clauses(order_by, order_direction),
