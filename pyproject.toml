@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codercore"
-version = "6.5.1"
+version = "6.5.2"
 description = "codercore"
 readme = "README.md"
 authors = [{ name = "Code R", email = "hello@coderstudio.dev" }]
@@ -36,7 +36,7 @@ dev = [
 ]
 
 [tool.bumpver]
-current_version = "6.5.1"
+current_version = "6.5.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
