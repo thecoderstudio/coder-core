@@ -5,6 +5,7 @@ from typing import Any, Callable, Self
 
 from sqlalchemy import Column, and_, or_, text
 from sqlalchemy.sql import ColumnElement, Select
+from sqlalchemy.sql.expression import TextClause
 
 from codercore.lib.collection import Direction
 
@@ -56,44 +57,83 @@ def _get_order_operator(
         return column.__lt__
 
 
+def _get_order_comparable(
+    order_by: tuple[Column, ...],
+    order_direction: Direction,
+    cursor: Cursor,
+) -> list[bool]:
+    return or_(
+        _get_order_operator(column, order_direction, cursor.direction)(
+            cursor.last_value[i]
+        )
+        for i, column in enumerate(order_by)
+    )
+
+
+def _is_tied_last_value(order_by: tuple[Column, ...], last_value: tuple[Any]) -> bool:
+    return and_(column == last_value[i] for i, column in enumerate(order_by))
+
+
+def _get_id_comparables(id_columns: tuple[Column, ...], cursor: Cursor) -> list[bool]:
+    return or_(
+        _get_pagination_operator(column, cursor.direction)(cursor.last_id[i])
+        for i, column in enumerate(id_columns)
+    )
+
+
 def _paginate(
     statement: Select,
-    id_column: Column,
-    cursor: Cursor | None,
-    order_by: Column,
+    id_columns: tuple[Column, ...],
+    cursor: Cursor,
+    order_by: tuple[Column, ...],
     order_direction: Direction,
 ) -> Select:
-    order_operator = _get_order_operator(order_by, order_direction, cursor.direction)
-    pagination_operator = _get_pagination_operator(id_column, cursor.direction)
     return statement.where(
         or_(
-            order_operator(cursor.last_value),
+            _get_order_comparable(order_by, order_direction, cursor),
             and_(
-                order_by == cursor.last_value,
-                pagination_operator(cursor.last_id),
+                _is_tied_last_value(order_by, cursor.last_value),
+                _get_id_comparables(id_columns, cursor),
             ),
         )
     )
 
 
+def _get_order_by_clauses(
+    order_by: tuple[Column, ...],
+    order_direction: Direction,
+) -> list[TextClause]:
+    return [text(f"{column.name} {order_direction}") for column in order_by]
+
+
+def _get_order_by_id_clauses(id_columns: tuple[Column, ...]) -> list[TextClause]:
+    return [text(f"{column.name} asc") for column in id_columns]
+
+
 def paginate(
     statement: Select,
-    id_column: Column,
+    id_column: Column | tuple[Column, ...],
     cursor: Cursor | None,
-    order_by: Column,
+    order_by: Column | tuple[Column, ...],
     order_direction: Direction,
     limit: int,
 ) -> Select:
+    id_columns = id_column if isinstance(id_column, tuple) else (id_column,)
     if cursor:
+        if not isinstance(order_by, tuple):
+            order_by = (order_by,)
+            cursor.last_value = (cursor.last_value,)
         statement = _paginate(
             statement,
-            id_column,
+            id_columns,
             cursor,
             order_by,
             order_direction,
         )
+    elif not isinstance(order_by, tuple):
+        order_by = (order_by,)
     statement = statement.order_by(
-        text(f"{order_by.name} {order_direction}"),
-        text(f"{id_column.name} asc"),
+        *_get_order_by_clauses(order_by, order_direction),
+        *_get_order_by_id_clauses(id_columns),
     ).limit(limit)
     return statement
