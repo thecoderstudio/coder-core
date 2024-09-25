@@ -3,7 +3,8 @@ from base64 import urlsafe_b64encode
 from dataclasses import asdict
 
 from pytest import fixture
-from sqlalchemy import Column, Integer, String, select
+from sqlalchemy import Column, ColumnElement, Integer, String, select
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from codercore.db import Base
 from codercore.db.pagination import Cursor, paginate
@@ -15,6 +16,15 @@ class Example(Base):
 
     id = Column(String(), primary_key=True)
     value = Column(Integer(), nullable=False)
+
+    @hybrid_property
+    def hybrid(self) -> int:
+        return abs(self.value - 2)
+
+    @hybrid.inplace.expression
+    @classmethod
+    def _hybrid_expression(cls) -> ColumnElement[int]:
+        return (cls.value - 2) * -1
 
     def __hash__(self) -> int:
         return hash((self.id, self.value))
@@ -102,6 +112,27 @@ async def test_paginate_forwards_order_desc(db_session, a, b, c):
             .all()
         )
     assert result == [b, c]
+
+
+async def test_paginate_forwards_order_by_hybrid_property(db_session, a, b, c):
+    async with db_session:
+        result = (
+            (
+                await db_session.execute(
+                    paginate(
+                        select(Example),
+                        id_column=Example.id,
+                        cursor=None,
+                        order_by=Example.hybrid,
+                        order_direction=Direction.DESC,
+                        limit=3,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert result == [c, a, b]
 
 
 async def test_paginate_alt_forwards_order_desc(db_session, d, e, f):
