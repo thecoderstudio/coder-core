@@ -61,3 +61,15 @@ async def test_cache_ex_set(mocker):
 
     await sample(1, connection=connection_mock)
     connection_mock.set.assert_awaited_once_with(key, 1, ex=ex)
+
+
+async def test_cache_dont_store_none(mocker):
+    key = "test"
+    connection_mock = mocker.AsyncMock()
+
+    @cache(key)
+    async def sample() -> None:
+        return None
+
+    await sample(connection=connection_mock)
+    connection_mock.set.assert_not_awaited()

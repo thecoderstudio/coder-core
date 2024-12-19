@@ -85,7 +85,8 @@ def cache(
             result = func(*args, **kwargs)
             if inspect.iscoroutine(result):
                 result = await result
-            await connection.set(formatted_key, result, ex=ex)
+            if result is not None:
+                await connection.set(formatted_key, result, ex=ex)
             return deserialize(result)
 
         return wrapper
