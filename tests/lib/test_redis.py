@@ -69,7 +69,7 @@ async def test_cache_dont_store_none(mocker):
 
     @cache(key)
     async def sample() -> None:
-        return None 
+        return None
 
     await sample(connection=connection_mock)
     connection_mock.set.assert_not_awaited()
