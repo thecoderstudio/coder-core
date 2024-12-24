@@ -21,3 +21,11 @@ def test_set_attrs_exclude_none():
     assert sample.a == 1
     assert sample.b == "b"
     assert not sample.c
+
+
+def test_set_attrs_exclude_type():
+    sample = Sample()
+    setattrs(sample, exclude_none=False, exclude_type=bool, a=True, c=False)
+    assert sample.a == 1
+    assert sample.b == "b"
+    assert sample.c
