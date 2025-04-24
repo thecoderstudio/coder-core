@@ -71,7 +71,7 @@ def cache(
     Callable[Concatenate[Redis, str, P], Awaitable[RT]],
 ]:
     def decorate(
-        func: Callable[P, CT]
+        func: Callable[P, CT],
     ) -> Callable[Concatenate[Redis, str, P], Awaitable[RT]]:
         @wraps(func)
         async def wrapper(
