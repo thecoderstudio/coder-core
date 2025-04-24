@@ -3,6 +3,7 @@ from typing import Callable, Optional, Type
 
 from asyncpg.connection import Connection
 from asyncstdlib.functools import cache as async_cache
+from frozendict import frozendict
 from google.cloud.sql.connector import IPTypes, create_async_connector
 from sqlalchemy.dialects.postgresql.asyncpg import (
     AsyncAdapt_asyncpg_connection,
@@ -25,13 +26,12 @@ def Session(connection_url: str) -> Session_:  # noqa
 def sessionmaker(
     connection_url: str,
     *args,
-    creator: Callable | None = None,
     poolclass: Optional[Type[Pool]] = None,
+    engine_kwargs: frozendict | None = None,
     **kwargs,
 ) -> sessionmaker_:
-    engine_kwargs = {}
-    if creator:
-        engine_kwargs["creator"] = creator
+    if engine_kwargs is None:
+        engine_kwargs = {}
     engine = create_async_engine(connection_url, poolclass=poolclass, **engine_kwargs)
     Base.metadata.bind = engine
     return sessionmaker_(engine, *args, class_=AsyncSession, **kwargs)

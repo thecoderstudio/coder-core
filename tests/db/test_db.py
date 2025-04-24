@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from frozendict import frozendict
 from google.cloud.sql.connector import IPTypes
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,7 +50,7 @@ def test_sessionmaker_using_creator(mocker):
         patch("codercore.db.Base") as base_mock,
         patch("codercore.db.sessionmaker_") as sessionmaker_mock,
     ):
-        sessionmaker(connection_url, creator=creator)
+        sessionmaker(connection_url, engine_kwargs=frozendict({"creator": creator}))
 
     engine_mock.assert_called_once_with(connection_url, poolclass=None, creator=creator)
     base_mock.metadata.bind == engine
