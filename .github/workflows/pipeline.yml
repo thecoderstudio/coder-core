@@ -34,7 +34,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: 'pypy3.12'
 
