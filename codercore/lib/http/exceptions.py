@@ -2,6 +2,8 @@ from aiohttp import ClientResponse
 
 
 class UnexpectedThirdPartyResponseError(ValueError):
+    """Raised when a third-party API response cannot be parsed as expected."""
+
     response: ClientResponse
 
     def __init__(self, response: ClientResponse, response_text: str) -> None:

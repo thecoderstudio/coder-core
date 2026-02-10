@@ -1,12 +1,12 @@
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-from typing import Awaitable, Callable
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from typing import Callable
 
 from pytest import FixtureRequest
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker as sessionmaker_
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import NullPool, Pool
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from codercore.db import get_connection_url, sessionmaker
@@ -21,6 +21,7 @@ def connection_settings(
     host: str,
     database: str,
 ) -> dict[str, str]:
+    """Build a database connection settings dict from given individual parameters."""
     return {
         "user": user,
         "password": password,
@@ -41,17 +42,23 @@ def DBSession(  # noqa
     sync_db_connection_url: str,
     async_db_connection_url: str,
     *args,
+    poolclass: type[Pool] = NullPool,
     **kwargs,
 ) -> sessionmaker_:
+    """Creates an (async) sessionmaker, creating the database if it doesn't exist."""
     if not database_exists(sync_db_connection_url):
         create_database(sync_db_connection_url)
-    return sessionmaker(async_db_connection_url, *args, poolclass=NullPool, **kwargs)
+    return sessionmaker(async_db_connection_url, *args, poolclass=poolclass, **kwargs)
 
 
 async def db_session(
     DBSession: sessionmaker_,  # noqa
-    metadata: MetaData = Base.metadata,
+    metadata: MetaData = Base.metadata,  # ty: ignore[unresolved-attribute]
 ) -> AsyncIterator[AsyncSession]:
+    """Yield a test database session.
+
+    Creates tables on entry and drops them on exit.
+    """
     async with DBSession() as session:
         try:
             async with session.bind.begin() as conn:
@@ -63,6 +70,8 @@ async def db_session(
 
 
 def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) -> None:
+    """Register a finalizer that drops the test database after the worker."""
+
     def cleanup():
         if not database_exists(sync_db_connection_url):
             return
@@ -75,9 +84,12 @@ def clean_up_for_worker(request: FixtureRequest, sync_db_connection_url: str) ->
 @asynccontextmanager
 async def _redis_connection_maker(
     worker_id: str,
-) -> AsyncIterator[Awaitable[Redis]]:
+) -> AsyncIterator[Redis]:
     async def redis_connection() -> Redis:
-        return connection.__wrapped__(db=int(worker_id[2:]), **EnvSettings.redis)
+        return connection.__wrapped__(
+            db=int(worker_id[2:]),
+            **EnvSettings.redis,  # ty: ignore[invalid-argument-type]
+        )
 
     try:
         conn = await redis_connection()
@@ -89,12 +101,12 @@ async def _redis_connection_maker(
 
 async def redis_connection_maker(
     worker_id: str,
-) -> Callable[[], AsyncIterator[Awaitable[Redis]]]:
+) -> Callable[[str], AbstractAsyncContextManager[Redis]]:
     return _redis_connection_maker
 
 
 async def redis_connection(
-    redis_connection_maker: Callable[[], Awaitable[Redis]],
+    redis_connection_maker: Callable[[str], AbstractAsyncContextManager[Redis]],
     worker_id: str,
 ) -> Redis:
     async with redis_connection_maker(worker_id) as conn:

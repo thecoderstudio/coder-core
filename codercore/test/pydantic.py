@@ -7,6 +7,7 @@ from pydantic import ValidationError
 def check_required_field_errors(
     required_field_names: list[str], errors: list[dict]
 ) -> bool:
+    """Check that all expected required-field errors are present."""
     errors = copy.deepcopy(errors)
     for required_field_name in required_field_names:
         i = _get_index_for_field_name(required_field_name, errors)
@@ -29,11 +30,17 @@ def check_validation_value_error(
     message: str,
     input_: Any,
 ) -> bool:
+    """Check that a ValidationError contains exactly one matching value error.
+
+    Matches against the expected location, message, and input.
+    """
     errors = error.errors()
     if len(errors) != 1:
         return False
 
-    error_data = _remove_redundant_validation_error_data(errors[0])
+    error_data = _remove_redundant_validation_error_data(
+        errors[0]  # ty: ignore[invalid-argument-type]
+    )
 
     return error_data == {
         "loc": location,

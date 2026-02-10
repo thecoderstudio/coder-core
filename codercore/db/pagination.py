@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Callable, Self
 
 from sqlalchemy import (
-    ColumnExpressionArgument,
+    ColumnElement,
     Select,
     UnaryExpression,
     and_,
@@ -19,6 +19,11 @@ from codercore.types import SequentialCollection
 
 @dataclass
 class Cursor:
+    """Pagination cursor encoding the last seen ID, value, and direction.
+
+    Supports JSON (de)serialization via base64-encoded tokens.
+    """
+
     last_id: Any
     last_value: Any
     direction: Direction
@@ -37,7 +42,7 @@ class Cursor:
 
     @classmethod
     def decode(cls, v: bytes) -> Self:
-        return Cursor(**cls._json_loads(v))
+        return cls(**cls._json_loads(v))
 
     def _json_dumps(self) -> str:
         return json.dumps(asdict(self))
@@ -48,16 +53,16 @@ class Cursor:
 
 
 def _get_pagination_operator(
-    column: ColumnExpressionArgument, direction: Direction
-) -> Callable[[ColumnExpressionArgument], bool]:
+    column: ColumnElement, direction: Direction
+) -> Callable[[object], ColumnElement[bool]]:
     return column.__gt__ if direction == Direction.ASC else column.__lt__
 
 
 def _get_order_operator(
-    column: ColumnExpressionArgument,
+    column: ColumnElement,
     order_direction: Direction,
     pagination_direction: Direction,
-) -> Callable[[ColumnExpressionArgument], bool]:
+) -> Callable[[object], ColumnElement[bool]]:
     if order_direction == pagination_direction:
         return column.__gt__
     else:
@@ -65,39 +70,43 @@ def _get_order_operator(
 
 
 def _get_order_comparable(
-    order_by: SequentialCollection[ColumnExpressionArgument],
+    order_by: SequentialCollection[ColumnElement],
     order_direction: Direction,
     cursor: Cursor,
-) -> list[bool]:
+) -> ColumnElement[bool]:
     return or_(
-        _get_order_operator(column, order_direction, cursor.direction)(
-            cursor.last_value[i]
+        *(
+            _get_order_operator(column, order_direction, cursor.direction)(
+                cursor.last_value[i]
+            )
+            for i, column in enumerate(order_by)
         )
-        for i, column in enumerate(order_by)
     )
 
 
 def _is_tied_last_value(
-    order_by: SequentialCollection[ColumnExpressionArgument],
+    order_by: SequentialCollection[ColumnElement],
     last_value: SequentialCollection[Any],
-) -> bool:
-    return and_(column == last_value[i] for i, column in enumerate(order_by))
+) -> ColumnElement[bool]:
+    return and_(*(column == last_value[i] for i, column in enumerate(order_by)))
 
 
 def _get_id_comparables(
-    id_columns: SequentialCollection[ColumnExpressionArgument], cursor: Cursor
-) -> list[bool]:
+    id_columns: SequentialCollection[ColumnElement], cursor: Cursor
+) -> ColumnElement[bool]:
     return or_(
-        _get_pagination_operator(column, cursor.direction)(cursor.last_id[i])
-        for i, column in enumerate(id_columns)
+        *(
+            _get_pagination_operator(column, cursor.direction)(cursor.last_id[i])
+            for i, column in enumerate(id_columns)
+        )
     )
 
 
 def _paginate(
     statement: Select,
-    id_columns: SequentialCollection[ColumnExpressionArgument],
+    id_columns: SequentialCollection[ColumnElement],
     cursor: Cursor,
-    order_by: SequentialCollection[ColumnExpressionArgument],
+    order_by: SequentialCollection[ColumnElement],
     order_direction: Direction,
 ) -> Select:
     return statement.where(
@@ -112,7 +121,7 @@ def _paginate(
 
 
 def _get_order_by_clauses(
-    order_by: SequentialCollection[ColumnExpressionArgument],
+    order_by: SequentialCollection[ColumnElement],
     order_direction: Direction,
 ) -> list[UnaryExpression]:
     expression = desc if order_direction == Direction.DESC else asc
@@ -120,40 +129,45 @@ def _get_order_by_clauses(
 
 
 def _get_order_by_id_clauses(
-    id_columns: SequentialCollection[ColumnExpressionArgument],
+    id_columns: SequentialCollection[ColumnElement],
 ) -> list[UnaryExpression]:
     return [asc(column) for column in id_columns]
 
 
 def paginate(
     statement: Select,
-    id_column: (
-        ColumnExpressionArgument | SequentialCollection[ColumnExpressionArgument]
-    ),
+    id_column: ColumnElement | SequentialCollection[ColumnElement],
     cursor: Cursor | None,
-    order_by: ColumnExpressionArgument | SequentialCollection[ColumnExpressionArgument],
+    order_by: ColumnElement | SequentialCollection[ColumnElement],
     order_direction: Direction,
     limit: int,
 ) -> Select:
-    scalar_id = isinstance(id_column, (list, tuple))
-    id_columns = id_column if scalar_id else (id_column,)
+    """Add cursor-based WHERE, ORDER BY, and LIMIT clauses to a SELECT statement."""
+    id_columns: SequentialCollection[ColumnElement]
+    if isinstance(id_column, (list, tuple)):
+        id_columns = id_column  # ty: ignore[invalid-assignment]
+    else:
+        id_columns = (id_column,)
+
+    order_by_seq: SequentialCollection[ColumnElement]
+    if isinstance(order_by, (list, tuple)):
+        order_by_seq = order_by  # ty: ignore[invalid-assignment]
+    else:
+        order_by_seq = (order_by,)
     if cursor:
         if not isinstance(order_by, (list, tuple)):
-            order_by = (order_by,)
             cursor.last_value = (cursor.last_value,)
-        if not scalar_id:
+        if not isinstance(id_column, (list, tuple)):
             cursor.last_id = (cursor.last_id,)
         statement = _paginate(
             statement,
             id_columns,
             cursor,
-            order_by,
+            order_by_seq,
             order_direction,
         )
-    elif not isinstance(order_by, (list, tuple)):
-        order_by = (order_by,)
     statement = statement.order_by(
-        *_get_order_by_clauses(order_by, order_direction),
+        *_get_order_by_clauses(order_by_seq, order_direction),
         *_get_order_by_id_clauses(id_columns),
     ).limit(limit)
     return statement

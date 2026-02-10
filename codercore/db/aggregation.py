@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Type, TypeVar
 
 from sqlalchemy import column, desc, select
-from sqlalchemy.engine import ChunkedIteratorResult
+from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import Executable
@@ -20,6 +20,8 @@ U = TypeVar("U", bound=Base)
 
 
 class AggregationQuery(metaclass=ABCMeta):
+    """Base class for building grouped aggregation queries against a model."""
+
     model_class: Type[U]
     order_by_column: str
     select_args: tuple
@@ -50,11 +52,17 @@ class AggregationQuery(metaclass=ABCMeta):
             .order_by(desc(self.order_by_column))
         )
 
-    async def execute(self, session: AsyncSession) -> ChunkedIteratorResult:
+    async def execute(self, session: AsyncSession) -> Result:
         return await session.execute(self._create_executable())
 
 
 class DatedAggregationQueryMixin(metaclass=ABCMeta):
+    """Mixin adding date truncation and min/max date filtering."""
+
+    model_class: type[Base]
+    select_args: tuple
+    where_args: tuple
+    group_by_args: tuple
     date_column: str = "date"
 
     def _expand_query(self, params: DatedAggregationParametersMixin) -> None:
@@ -66,12 +74,12 @@ class DatedAggregationQueryMixin(metaclass=ABCMeta):
             self._add_max_date(params.max_date)
 
     def _add_date_precision(self, date_precision: DatePrecision) -> None:
-        date_precision = str(date_precision)
+        precision = str(date_precision)
         self.select_args = (
-            func.date_trunc(date_precision, self._get_date()).label(date_precision),
+            func.date_trunc(precision, self._get_date()).label(precision),
             *self.select_args,
         )
-        self.group_by_args = (date_precision, *self.group_by_args)
+        self.group_by_args = (precision, *self.group_by_args)
 
     def _add_min_date(self, min_date: datetime) -> None:
         self.where_args = (*self.where_args, self._get_date() >= min_date)

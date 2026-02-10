@@ -7,6 +7,8 @@ T = TypeVar("T", bound=dict[str, Any])
 
 
 class DatePrecision(StrEnum):
+    """Supported date truncation levels for aggregation queries."""
+
     year = auto()
     quarter = auto()
     month = auto()
@@ -19,11 +21,15 @@ class DatePrecision(StrEnum):
 
 @dataclass
 class AggregationParameters:
+    """Parameters for controlling grouping in aggregation queries."""
+
     grouped_by: list[str] = field(default_factory=lambda: [])
 
 
 @dataclass
 class DatedAggregationParametersMixin:
+    """Mixin adding date range and precision parameters to aggregation queries."""
+
     min_date: datetime | None = None
     max_date: datetime | None = None
     date_precision: DatePrecision | None = None

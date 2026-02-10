@@ -31,13 +31,11 @@ def test_sessionmaker(mocker):
     engine = mocker.MagicMock()
     with (
         patch("codercore.db.create_async_engine", return_value=engine) as engine_mock,
-        patch("codercore.db.Base") as base_mock,
         patch("codercore.db.sessionmaker_") as sessionmaker_mock,
     ):
         sessionmaker(connection_url)
 
     engine_mock.assert_called_once_with(connection_url, poolclass=None)
-    base_mock.metadata.bind == engine
     sessionmaker_mock.assert_called_once_with(engine, class_=AsyncSession)
 
 
@@ -47,13 +45,11 @@ def test_sessionmaker_using_creator(mocker):
     creator = mocker.MagicMock()
     with (
         patch("codercore.db.create_async_engine", return_value=engine) as engine_mock,
-        patch("codercore.db.Base") as base_mock,
         patch("codercore.db.sessionmaker_") as sessionmaker_mock,
     ):
         sessionmaker(connection_url, engine_kwargs=frozendict({"creator": creator}))
 
     engine_mock.assert_called_once_with(connection_url, poolclass=None, creator=creator)
-    base_mock.metadata.bind == engine
     sessionmaker_mock.assert_called_once_with(engine, class_=AsyncSession)
 
 

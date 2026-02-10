@@ -1,12 +1,11 @@
-from typing import Optional
-
 import bcrypt
 
 EXPECTED_SALT_LENGTH = 29
 ENCODING = "utf-8"
 
 
-def bcrypt_hash(plaintext: str, salt: Optional[bytes] = None) -> tuple[str, str]:
+def bcrypt_hash(plaintext: str, salt: bytes | None = None) -> tuple[str, str]:
+    """Hash a plaintext string with bcrypt, returning (hash, salt) as strings."""
     if not salt:
         salt = bcrypt.gensalt()
 
@@ -17,8 +16,9 @@ def bcrypt_hash(plaintext: str, salt: Optional[bytes] = None) -> tuple[str, str]
 
 
 def bcrypt_check_plaintext_equals_hash(
-    plaintext: str, hashed_plaintext: str, salt: Optional[str] = None
+    plaintext: str, hashed_plaintext: str, salt: str | None = None
 ) -> bool:
+    """Verify that a plaintext string matches a bcrypt hash string."""
     if not salt:
         salt = hashed_plaintext[:EXPECTED_SALT_LENGTH]
 

@@ -7,6 +7,7 @@ def setattrs(
     exclude_type: Type[Any] | None = None,
     **kwargs
 ) -> None:
+    """Bulk-set attributes on an object, with optional None and type exclusion."""
     for key, value in kwargs.items():
         if (exclude_none and value is None) or (
             exclude_type is not None and isinstance(value, exclude_type)

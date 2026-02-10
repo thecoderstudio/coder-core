@@ -1,0 +1,25 @@
+site_name: Coder Core
+site_description: Async-first Python utility library providing common infrastructure for backend services.
+
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            members_order: source
+
+nav:
+  - Home: index.md
+  - API Reference:
+      - Database: reference/db.md
+      - Library: reference/lib.md
+      - HTTP: reference/http.md
+      - Schemas: reference/schemas.md
+      - Test Utilities: reference/test.md
+      - Types: reference/types.md
