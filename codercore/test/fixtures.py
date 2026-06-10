@@ -96,7 +96,7 @@ async def _redis_connection_maker(
         yield conn
     finally:
         await conn.flushdb()
-        await conn.close()
+        await conn.aclose()
 
 
 async def redis_connection_maker(
