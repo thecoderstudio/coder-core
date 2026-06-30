@@ -3,13 +3,14 @@ import os
 from typing import Any
 
 from codercore.db import get_connection_url
+from codercore.lib.descriptors import classproperty
+from codercore.lib.meta import Frozen
 
 
-class EnvSettings:
+class EnvSettings(metaclass=Frozen):
     """Environment-variable-based configuration for database and Redis connections."""
 
-    @classmethod
-    @property
+    @classproperty
     def database(cls) -> dict[str, Any]:
         use_connector = bool(os.environ.get("POSTGRES_USE_SQL_CONNECTOR", False))
         base: dict[str, Any] = {
@@ -31,8 +32,7 @@ class EnvSettings:
                 **base,
             }
 
-    @classmethod
-    @property
+    @classproperty
     def database_connection_url(cls) -> str:
         db_settings: dict[str, Any] = copy.copy(
             cls.database
@@ -40,8 +40,7 @@ class EnvSettings:
         del db_settings["use_connector"]
         return get_connection_url("postgresql+asyncpg", **db_settings)
 
-    @classmethod
-    @property
+    @classproperty
     def redis(cls) -> dict[str, str | int]:
         return {
             "host": os.environ["REDIS_HOST"],
