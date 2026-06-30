@@ -25,3 +25,7 @@ def test_classproperty_get_on_instance():
 def test_classproperty_get_on_instance_not_found():
     with pytest.raises(AttributeError):
         Foo().foo
+
+
+def test_classproperty_get_without_owner():
+    assert Foo.__dict__["bar"].__get__(Foo()) == "bar"

@@ -5,7 +5,7 @@ def setattrs(
     obj: Any,
     exclude_none: bool = False,
     exclude_type: Type[Any] | None = None,
-    **kwargs
+    **kwargs,
 ) -> None:
     """Bulk-set attributes on an object, with optional None and type exclusion."""
     for key, value in kwargs.items():

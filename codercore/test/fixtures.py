@@ -88,7 +88,7 @@ async def _redis_connection_maker(
     async def redis_connection() -> Redis:
         return connection.__wrapped__(
             db=int(worker_id[2:]),
-            **EnvSettings.redis,  # ty: ignore[invalid-argument-type]
+            **EnvSettings.redis,
         )
 
     try:

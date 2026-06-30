@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import os
 from typing import Any
@@ -11,7 +13,7 @@ class EnvSettings(metaclass=Frozen):
     """Environment-variable-based configuration for database and Redis connections."""
 
     @classproperty
-    def database(cls) -> dict[str, Any]:
+    def database(cls: type[EnvSettings]) -> dict[str, Any]:
         use_connector = bool(os.environ.get("POSTGRES_USE_SQL_CONNECTOR", False))
         base: dict[str, Any] = {
             "user": os.environ["POSTGRES_USER"],
@@ -33,15 +35,13 @@ class EnvSettings(metaclass=Frozen):
             }
 
     @classproperty
-    def database_connection_url(cls) -> str:
-        db_settings: dict[str, Any] = copy.copy(
-            cls.database
-        )  # ty: ignore[invalid-assignment]
+    def database_connection_url(cls: type[EnvSettings]) -> str:
+        db_settings: dict[str, Any] = copy.copy(cls.database)
         del db_settings["use_connector"]
         return get_connection_url("postgresql+asyncpg", **db_settings)
 
     @classproperty
-    def redis(cls) -> dict[str, str | int]:
+    def redis(cls: type[EnvSettings]) -> dict[str, str | int]:
         return {
             "host": os.environ["REDIS_HOST"],
             "port": int(os.environ["REDIS_PORT"]),
